@@ -4,8 +4,14 @@
 <meta charset="utf-8">
 <title>Guides</title>
 <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+<!-- Mapbox GL JS -->
 <link href="https://api.mapbox.com/mapbox-gl-js/v3.30.0/mapbox-gl.css" rel="stylesheet">
 <script src="https://api.mapbox.com/mapbox-gl-js/v3.30.0/mapbox-gl.js"></script>
+
+<!-- Mapbox GL Directions Plugin (道案内プラグイン) -->
+<script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.2.0/mapbox-gl-directions.js"></script>
+<link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.2.0/mapbox-gl-directions.css" type="text/css">
+
 <style>
 body { margin: 0; padding: 0; }
 #map { position: absolute; top: 0; bottom: 0; width: 100%; }
@@ -14,20 +20,39 @@ body { margin: 0; padding: 0; }
 <body>
 <div id="map"></div>
 <script>
+    const accessToken = 'pk.eyJ1IjoibWMxZHBiYWJnb2d1IiwiYSI6ImNtdWg0NmhhbDAxZ3YzNHBxc2R2d25pZXUifQ.jco9CKcl7GfcSr2Lh79gLA';
+    mapboxgl.accessToken = accessToken;
+
     const map = new mapboxgl.Map({
-        accessToken: 'pk.eyJ1IjoibWMxZHBiYWJnb2d1IiwiYSI6ImNtdWg0NmhhbDAxZ3YzNHBxc2R2d25pZXUifQ.jco9CKcl7GfcSr2Lh79gLA',
         container: 'map',
-        style: 'mapbox://styles/mc1dpbabgogu/cmumrim97003901sl30ltg4o2', // Use the standard style for the map
-        projection: 'globe', // display the map as a globe
-        zoom: 1, // initial zoom level, 0 is the world view, higher values zoom in
-        center: [30, 15] // center the map on this longitude and latitude
+        style: 'mapbox://styles/mapbox/standard', // マップのスタイル
+        projection: 'globe', // 地球儀表示
+        zoom: 1, // 初期ズームレベル
+        center: [30, 15] // 初期中心座標 [経度, 緯度]
     });
 
-    map.addControl(new mapboxgl.NavigationControl());
+    // 1. ナビゲーションコントロール（拡大・縮小ボタン・コンパス）を追加
+    // 右上に配置 (visualizePitch: true で傾き変更にも対応)
+    const nav = new mapboxgl.NavigationControl({
+        visualizePitch: true
+    });
+    map.addControl(nav, 'top-right');
+
+    // 2. 道案内 (Directions) コントロールを追加
+    // 左上に配置
+    const directions = new MapboxDirections({
+        accessToken: accessToken,
+        unit: 'metric', // 単位をメートル法（km/m）に設定
+        profile: 'mapbox/driving', // 初期モード（'mapbox/driving', 'mapbox/walking', 'mapbox/cycling' など）
+        language: 'ja' // 言語設定（日本語）
+    });
+    map.addControl(directions, 'top-left');
+
+    // スクロールズームの無効化（ご要望の元の設定）
     map.scrollZoom.disable();
 
     map.on('style.load', () => {
-        map.setFog({}); // Set the default atmosphere style
+        map.setFog({}); // デフォルトの大気・空のスタイルを設定
     });
 </script>
 
