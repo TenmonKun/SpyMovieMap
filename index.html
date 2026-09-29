@@ -7,7 +7,7 @@
 <link href="https://api.mapbox.com/mapbox-gl-js/v3.30.0/mapbox-gl.css" rel="stylesheet">
 <script src="https://api.mapbox.com/mapbox-gl-js/v3.30.0/mapbox-gl.js"></script>
 
-<!-- Mapbox GL Directions プラグインのCSSとJSを追加 -->
+<!-- Mapbox GL Directions プラグイン -->
 <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.3.1/mapbox-gl-directions.js"></script>
 <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.3.1/mapbox-gl-directions.css" type="text/css">
 
@@ -24,29 +24,71 @@ body { margin: 0; padding: 0; }
     const map = new mapboxgl.Map({
         container: 'map',
         style: 'mapbox://styles/mc1dpbabgogu/cmumrim97003901sl30ltg4o2',
-        projection: 'mercator', // 平面図
-        zoom: 11, // デリー周辺を表示
-        center: [77.2090, 28.6139] // デリー（インド）
+        projection: 'mercator',
+        zoom: 11,
+        center: [77.2090, 28.6139]
     });
 
-    // ナビゲーションコントロール（拡大・縮小ボタン等）
     map.addControl(new mapboxgl.NavigationControl());
 
-    // 現在地取得コントロール（現在地ボタンを追加）
-    map.addControl(new mapboxgl.GeolocateControl({
-        positionOptions: {
-            enableHighAccuracy: true
+    // カスタムスタイルの定義
+    const customRouteStyles = [
+        // 1. ルートの下地（枠線/シャドウ効果）
+        {
+            'id': 'directions-route-line-casing',
+            'type': 'line',
+            'source': 'directions',
+            'layout': {
+                'line-cap': 'round',
+                'line-join': 'round'
+            },
+            'paint': {
+                'line-color': '#2d3748', // 枠線の色（ダークグレー）
+                'line-width': 9,          // 線幅
+                'line-opacity': 0.8
+            },
+            'filter': ['all', ['in', '$type', 'LineString'], ['in', 'route', 'selected']]
         },
-        trackUserLocation: true,
-        showUserHeading: true
-    }));
+        // 2. メインのルート線
+        {
+            'id': 'directions-route-line',
+            'type': 'line',
+            'source': 'directions',
+            'layout': {
+                'line-cap': 'round',
+                'line-join': 'round'
+            },
+            'paint': {
+                'line-color': '#007cbf', // ルート線のメインカラー（青）
+                'line-width': 6,          // 太さ
+                'line-opacity': 0.95
+            },
+            'filter': ['all', ['in', '$type', 'LineString'], ['in', 'route', 'selected']]
+        },
+        // 3. 代替ルート線（複数検索結果が出た場合の非選択ルート）
+        {
+            'id': 'directions-route-line-alt',
+            'type': 'line',
+            'source': 'directions',
+            'layout': {
+                'line-cap': 'round',
+                'line-join': 'round'
+            },
+            'paint': {
+                'line-color': '#a0aec0', // グレー
+                'line-width': 5,
+                'line-dasharray': [2, 2] // 破線指定
+            },
+            'filter': ['all', ['in', '$type', 'LineString'], ['in', 'route', 'alternate']]
+        }
+    ];
 
-    // 道案内（Directions）コントロールを追加
     const directions = new MapboxDirections({
         accessToken: mapboxgl.accessToken,
-        unit: 'metric', // 単位をキロメートル/メートルに設定
-        profile: 'mapbox/driving', // 移動手段: 'mapbox/driving' (車), 'mapbox/walking' (徒歩), 'mapbox/cycling' (自転車)
-        language: 'ja' // 日本語UI
+        unit: 'metric',
+        profile: 'mapbox/driving',
+        language: 'ja',
+        styles: customRouteStyles // ここでカスタムスタイルを適用
     });
 
     map.addControl(directions, 'top-left');
