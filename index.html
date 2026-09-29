@@ -18,13 +18,13 @@ body { margin: 0; padding: 0; }
         accessToken: 'pk.eyJ1IjoibWMxZHBiYWJnb2d1IiwiYSI6ImNtdWg0NmhhbDAxZ3YzNHBxc2R2d25pZXUifQ.jco9CKcl7GfcSr2Lh79gLA',
         container: 'map',
         style: 'mapbox://styles/mc1dpbabgogu/cmumrim97003901sl30ltg4o2',
-        projection: 'mercator', // 平面図（メルカトル図法）に変更
-        zoom: 1,
-        center: [30, 15]
+        projection: 'mercator', // 平面図（メルカトル図法）
+        zoom: 10, // デリーを表示しやすいようにズームレベルを上げました（お好みで調整可能）
+        center: [77.2090, 28.6139] // デリーの座標 [経度, 緯度]
     });
 
     map.addControl(new mapboxgl.NavigationControl());
-    map.scrollZoom.disable();
+    // map.scrollZoom.disable(); ← 無効化を解除（デフォルトでスクロールズームが有効になります）
 </script>
 
 </body>
