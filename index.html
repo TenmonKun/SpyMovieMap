@@ -50,7 +50,7 @@ body { margin: 0; padding: 0; }
             map.setPaintProperty('directions-route-line-alt-casing', 'line-width', 0);
         }
 
-        // 2. ルート線（オレンジ・細線）
+        // 2. ルート線
         if (map.getLayer('directions-route-line')) {
             map.setPaintProperty('directions-route-line', 'line-color', '#ecc980');
             map.setPaintProperty('directions-route-line', 'line-width', 2);
@@ -72,7 +72,7 @@ body { margin: 0; padding: 0; }
             }
         });
 
-        // 4. A/B 丸のサイズを縮小（半径を小サイズに設定）
+        // 4. A/B 丸のサイズ調整と塗りつぶし色・枠線色の設定 (#ecc980)
         const pointCircleLayers = [
             'directions-origin-point',
             'directions-destination-point',
@@ -80,7 +80,9 @@ body { margin: 0; padding: 0; }
         ];
         pointCircleLayers.forEach(layerId => {
             if (map.getLayer(layerId)) {
-                map.setPaintProperty(layerId, 'circle-radius', 5); // 半径5px（小さめの丸）
+                map.setPaintProperty(layerId, 'circle-radius', 5);           // 半径5px
+                map.setPaintProperty(layerId, 'circle-color', '#ecc980');    // 丸の塗りつぶし色
+                map.setPaintProperty(layerId, 'circle-stroke-color', '#ecc980'); // 丸の外枠色（黒や白の枠線を統一）
             }
         });
     }
