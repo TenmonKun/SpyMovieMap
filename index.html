@@ -6,6 +6,11 @@
 <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
 <link href="https://api.mapbox.com/mapbox-gl-js/v3.30.0/mapbox-gl.css" rel="stylesheet">
 <script src="https://api.mapbox.com/mapbox-gl-js/v3.30.0/mapbox-gl.js"></script>
+
+<!-- Directions プラグインの CSS と JS を追加 -->
+<script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.3.1/mapbox-gl-directions.js"></script>
+<link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.3.1/mapbox-gl-directions.css" type="text/css">
+
 <style>
 body { margin: 0; padding: 0; }
 #map { position: absolute; top: 0; bottom: 0; width: 100%; }
@@ -18,13 +23,24 @@ body { margin: 0; padding: 0; }
         accessToken: 'pk.eyJ1IjoibWMxZHBiYWJnb2d1IiwiYSI6ImNtdWg0NmhhbDAxZ3YzNHBxc2R2d25pZXUifQ.jco9CKcl7GfcSr2Lh79gLA',
         container: 'map',
         style: 'mapbox://styles/mc1dpbabgogu/cmumrim97003901sl30ltg4o2',
-        projection: 'mercator', // 平面図（メルカトル図法）
-        zoom: 10, // デリーを表示しやすいようにズームレベルを上げました（お好みで調整可能）
-        center: [77.2090, 28.6139] // デリーの座標 [経度, 緯度]
+        projection: 'mercator',
+        zoom: 10,
+        center: [77.2090, 28.6139] // デリーの中心座標
     });
 
+    // ナビゲーションコントロール（ズームボタン・コンパス）の追加
     map.addControl(new mapboxgl.NavigationControl());
-    // map.scrollZoom.disable(); ← 無効化を解除（デフォルトでスクロールズームが有効になります）
+
+    // ルート案内（Directions）プラグインの初期化と追加
+    const directions = new MapboxDirections({
+        accessToken: mapboxgl.accessToken,
+        unit: 'metric', // 距離の単位（キロメートル/メートル）
+        profile: 'mapbox/driving', // 移動手段: 'mapbox/driving'（車）, 'mapbox/walking'（徒歩）, 'mapbox/cycling'（自転車）
+        language: 'ja' // 言語を日本語に指定
+    });
+
+    // 左上に道案内コントロールを追加
+    map.addControl(directions, 'top-left');
 </script>
 
 </body>
