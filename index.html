@@ -31,65 +31,41 @@ body { margin: 0; padding: 0; }
 
     map.addControl(new mapboxgl.NavigationControl());
 
-    map.addControl(new mapboxgl.GeolocateControl({
-        positionOptions: { enableHighAccuracy: true },
-        trackUserLocation: true,
-        showUserHeading: true
-    }));
-
-    // ルート線のカスタマイズスタイル定義
-    const customRouteStyles = [
-        // 1. 代替ルート線（非アクティブ時）
-        {
-            'id': 'directions-route-line-alt',
-            'type': 'line',
-            'filter': [
-                'all',
-                ['==', '$type', 'LineString'],
-                ['==', 'meta', 'route'],
-                ['==', 'isAlternative', 'true']
-            ],
-            'layout': {
-                'line-cap': 'round',
-                'line-join': 'round'
-            },
-            'paint': {
-                'line-color': '#FFA500', // 薄め・半透明のオレンジ
-                'line-width': 3,         // 線幅（細め）
-                'line-opacity': 0.6
-            }
-        },
-        // 2. メインルート線（アクティブ時）
-        {
-            'id': 'directions-route-line',
-            'type': 'line',
-            'filter': [
-                'all',
-                ['==', '$type', 'LineString'],
-                ['==', 'meta', 'route'],
-                ['!=', 'isAlternative', 'true']
-            ],
-            'layout': {
-                'line-cap': 'round',
-                'line-join': 'round'
-            },
-            'paint': {
-                'line-color': '#FF6600', // 鮮やかなオレンジ
-                'line-width': 5          // 線幅（メインルート）
-            }
-        }
-    ];
-
-    // 道案内コントロールの初期化
+    // 道案内コントロールの設定
     const directions = new MapboxDirections({
         accessToken: mapboxgl.accessToken,
         unit: 'metric',
         profile: 'mapbox/driving',
-        language: 'ja',
-        styles: customRouteStyles // カスタムスタイルをセット
+        language: 'ja'
     });
 
     map.addControl(directions, 'top-left');
+
+    // ルートが計算・表示されたタイミングで直接線のスタイル（オレンジ・細線）を変更する
+    map.on('style.load', () => {
+        // メインルート線の色と太さを変更
+        if (map.getLayer('directions-route-line')) {
+            map.setPaintProperty('directions-route-line', 'line-color', '#FF6600'); // 鮮やかなオレンジ
+            map.setPaintProperty('directions-route-line', 'line-width', 4);          // 細め（4px）
+        }
+        // 代替ルート線の色と太さを変更
+        if (map.getLayer('directions-route-line-alt')) {
+            map.setPaintProperty('directions-route-line-alt', 'line-color', '#FFA500'); // 薄めのオレンジ
+            map.setPaintProperty('directions-route-line-alt', 'line-width', 3);          // さらに細め（3px）
+        }
+    });
+
+    // ルート検索が実行された際にも確実にスタイルを適用
+    directions.on('route', () => {
+        if (map.getLayer('directions-route-line')) {
+            map.setPaintProperty('directions-route-line', 'line-color', '#FF6600');
+            map.setPaintProperty('directions-route-line', 'line-width', 4);
+        }
+        if (map.getLayer('directions-route-line-alt')) {
+            map.setPaintProperty('directions-route-line-alt', 'line-color', '#FFA500');
+            map.setPaintProperty('directions-route-line-alt', 'line-width', 3);
+        }
+    });
 </script>
 
 </body>
