@@ -31,7 +31,6 @@ body { margin: 0; padding: 0; }
 
     map.addControl(new mapboxgl.NavigationControl());
 
-    // 道案内コントロールの設定
     const directions = new MapboxDirections({
         accessToken: mapboxgl.accessToken,
         unit: 'metric',
@@ -41,31 +40,32 @@ body { margin: 0; padding: 0; }
 
     map.addControl(directions, 'top-left');
 
-    // ルートが計算・表示されたタイミングで直接線のスタイル（オレンジ・細線）を変更する
-    map.on('style.load', () => {
-        // メインルート線の色と太さを変更
-        if (map.getLayer('directions-route-line')) {
-            map.setPaintProperty('directions-route-line', 'line-color', '#FF6600'); // 鮮やかなオレンジ
-            map.setPaintProperty('directions-route-line', 'line-width', 4);          // 細め（4px）
+    // ルート線のスタイル適用処理関数
+    function applyCustomStyles() {
+        // 1. 青い縁取り（外枠線）を非表示にする
+        if (map.getLayer('directions-route-line-casing')) {
+            map.setPaintProperty('directions-route-line-casing', 'line-width', 0); // 外枠を消す
         }
-        // 代替ルート線の色と太さを変更
-        if (map.getLayer('directions-route-line-alt')) {
-            map.setPaintProperty('directions-route-line-alt', 'line-color', '#FFA500'); // 薄めのオレンジ
-            map.setPaintProperty('directions-route-line-alt', 'line-width', 3);          // さらに細め（3px）
+        if (map.getLayer('directions-route-line-alt-casing')) {
+            map.setPaintProperty('directions-route-line-alt-casing', 'line-width', 0); // 代替線の外枠も消す
         }
-    });
 
-    // ルート検索が実行された際にも確実にスタイルを適用
-    directions.on('route', () => {
+        // 2. メインルート線（オレンジ・細線）
         if (map.getLayer('directions-route-line')) {
             map.setPaintProperty('directions-route-line', 'line-color', '#FF6600');
-            map.setPaintProperty('directions-route-line', 'line-width', 4);
+            map.setPaintProperty('directions-route-line', 'line-width', 3); // 細めの3px
         }
+
+        // 3. 代替ルート線（薄いオレンジ・細線）
         if (map.getLayer('directions-route-line-alt')) {
             map.setPaintProperty('directions-route-line-alt', 'line-color', '#FFA500');
-            map.setPaintProperty('directions-route-line-alt', 'line-width', 3);
+            map.setPaintProperty('directions-route-line-alt', 'line-width', 2); // 2px
         }
-    });
+    }
+
+    // イベント発火時にスタイルを上書き適用
+    map.on('style.load', applyCustomStyles);
+    directions.on('route', applyCustomStyles);
 </script>
 
 </body>
