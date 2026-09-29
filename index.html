@@ -40,30 +40,51 @@ body { margin: 0; padding: 0; }
 
     map.addControl(directions, 'top-left');
 
-    // ルート線のスタイル適用処理関数
+    // カスタムスタイルの適用処理
     function applyCustomStyles() {
-        // 1. 青い縁取り（外枠線）を非表示にする
+        // 1. 青い縁取り（外枠線）を非表示
         if (map.getLayer('directions-route-line-casing')) {
-            map.setPaintProperty('directions-route-line-casing', 'line-width', 0); // 外枠を消す
+            map.setPaintProperty('directions-route-line-casing', 'line-width', 0);
         }
         if (map.getLayer('directions-route-line-alt-casing')) {
-            map.setPaintProperty('directions-route-line-alt-casing', 'line-width', 0); // 代替線の外枠も消す
+            map.setPaintProperty('directions-route-line-alt-casing', 'line-width', 0);
         }
 
-        // 2. メインルート線（オレンジ・細線）
+        // 2. ルート線（オレンジ・細線）
         if (map.getLayer('directions-route-line')) {
             map.setPaintProperty('directions-route-line', 'line-color', '#ecc980');
-            map.setPaintProperty('directions-route-line', 'line-width', 2); // 細めの3px
+            map.setPaintProperty('directions-route-line', 'line-width', 2);
         }
-
-        // 3. 代替ルート線（薄いオレンジ・細線）
         if (map.getLayer('directions-route-line-alt')) {
             map.setPaintProperty('directions-route-line-alt', 'line-color', '#ecc980');
-            map.setPaintProperty('directions-route-line-alt', 'line-width', 2); // 2px
+            map.setPaintProperty('directions-route-line-alt', 'line-width', 2);
         }
+
+        // 3. A/B テキスト（文字）の消去
+        const pointTextLayers = [
+            'directions-origin-label',
+            'directions-destination-label',
+            'directions-waypoint-label'
+        ];
+        pointTextLayers.forEach(layerId => {
+            if (map.getLayer(layerId)) {
+                map.setLayoutProperty(layerId, 'text-field', ''); // 文字を空にする
+            }
+        });
+
+        // 4. A/B 丸のサイズを縮小（半径を小サイズに設定）
+        const pointCircleLayers = [
+            'directions-origin-point',
+            'directions-destination-point',
+            'directions-waypoint-point'
+        ];
+        pointCircleLayers.forEach(layerId => {
+            if (map.getLayer(layerId)) {
+                map.setPaintProperty(layerId, 'circle-radius', 5); // 半径5px（小さめの丸）
+            }
+        });
     }
 
-    // イベント発火時にスタイルを上書き適用
     map.on('style.load', applyCustomStyles);
     directions.on('route', applyCustomStyles);
 </script>
