@@ -52,13 +52,13 @@ body { margin: 0; padding: 0; }
 
         // 2. メインルート線（オレンジ・細線）
         if (map.getLayer('directions-route-line')) {
-            map.setPaintProperty('directions-route-line', 'line-color', '#FF6600');
-            map.setPaintProperty('directions-route-line', 'line-width', 3); // 細めの3px
+            map.setPaintProperty('directions-route-line', 'line-color', '#ecc980');
+            map.setPaintProperty('directions-route-line', 'line-width', 2); // 細めの3px
         }
 
         // 3. 代替ルート線（薄いオレンジ・細線）
         if (map.getLayer('directions-route-line-alt')) {
-            map.setPaintProperty('directions-route-line-alt', 'line-color', '#FFA500');
+            map.setPaintProperty('directions-route-line-alt', 'line-color', '#ecc980');
             map.setPaintProperty('directions-route-line-alt', 'line-width', 2); // 2px
         }
     }
