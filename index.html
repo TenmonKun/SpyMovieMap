@@ -31,64 +31,62 @@ body { margin: 0; padding: 0; }
 
     map.addControl(new mapboxgl.NavigationControl());
 
-    // カスタムスタイルの定義
+    map.addControl(new mapboxgl.GeolocateControl({
+        positionOptions: { enableHighAccuracy: true },
+        trackUserLocation: true,
+        showUserHeading: true
+    }));
+
+    // ルート線のカスタマイズスタイル定義
     const customRouteStyles = [
-        // 1. ルートの下地（枠線/シャドウ効果）
-        {
-            'id': 'directions-route-line-casing',
-            'type': 'line',
-            'source': 'directions',
-            'layout': {
-                'line-cap': 'round',
-                'line-join': 'round'
-            },
-            'paint': {
-                'line-color': '#2d3748', // 枠線の色（ダークグレー）
-                'line-width': 9,          // 線幅
-                'line-opacity': 0.8
-            },
-            'filter': ['all', ['in', '$type', 'LineString'], ['in', 'route', 'selected']]
-        },
-        // 2. メインのルート線
-        {
-            'id': 'directions-route-line',
-            'type': 'line',
-            'source': 'directions',
-            'layout': {
-                'line-cap': 'round',
-                'line-join': 'round'
-            },
-            'paint': {
-                'line-color': '#007cbf', // ルート線のメインカラー（青）
-                'line-width': 6,          // 太さ
-                'line-opacity': 0.95
-            },
-            'filter': ['all', ['in', '$type', 'LineString'], ['in', 'route', 'selected']]
-        },
-        // 3. 代替ルート線（複数検索結果が出た場合の非選択ルート）
+        // 1. 代替ルート線（非アクティブ時）
         {
             'id': 'directions-route-line-alt',
             'type': 'line',
-            'source': 'directions',
+            'filter': [
+                'all',
+                ['==', '$type', 'LineString'],
+                ['==', 'meta', 'route'],
+                ['==', 'isAlternative', 'true']
+            ],
             'layout': {
                 'line-cap': 'round',
                 'line-join': 'round'
             },
             'paint': {
-                'line-color': '#a0aec0', // グレー
-                'line-width': 5,
-                'line-dasharray': [2, 2] // 破線指定
+                'line-color': '#FFA500', // 薄め・半透明のオレンジ
+                'line-width': 3,         // 線幅（細め）
+                'line-opacity': 0.6
+            }
+        },
+        // 2. メインルート線（アクティブ時）
+        {
+            'id': 'directions-route-line',
+            'type': 'line',
+            'filter': [
+                'all',
+                ['==', '$type', 'LineString'],
+                ['==', 'meta', 'route'],
+                ['!=', 'isAlternative', 'true']
+            ],
+            'layout': {
+                'line-cap': 'round',
+                'line-join': 'round'
             },
-            'filter': ['all', ['in', '$type', 'LineString'], ['in', 'route', 'alternate']]
+            'paint': {
+                'line-color': '#FF6600', // 鮮やかなオレンジ
+                'line-width': 5          // 線幅（メインルート）
+            }
         }
     ];
 
+    // 道案内コントロールの初期化
     const directions = new MapboxDirections({
         accessToken: mapboxgl.accessToken,
         unit: 'metric',
         profile: 'mapbox/driving',
         language: 'ja',
-        styles: customRouteStyles // ここでカスタムスタイルを適用
+        styles: customRouteStyles // カスタムスタイルをセット
     });
 
     map.addControl(directions, 'top-left');
