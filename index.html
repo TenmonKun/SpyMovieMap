@@ -57,11 +57,11 @@ body { margin: 0; padding: 0; }
 
         // 2. ルート線
         if (map.getLayer('directions-route-line')) {
-            map.setPaintProperty('directions-route-line', 'line-color', '#ecc980');
+            map.setPaintProperty('directions-route-line', 'line-color', '#ff210c');
             map.setPaintProperty('directions-route-line', 'line-width', 2);
         }
         if (map.getLayer('directions-route-line-alt')) {
-            map.setPaintProperty('directions-route-line-alt', 'line-color', '#ecc980');
+            map.setPaintProperty('directions-route-line-alt', 'line-color', '#ff210c');
             map.setPaintProperty('directions-route-line-alt', 'line-width', 2);
         }
 
@@ -77,7 +77,7 @@ body { margin: 0; padding: 0; }
             }
         });
 
-        // 4. A/B 丸のサイズ調整と塗りつぶし色・枠線色の設定 (#ecc980)
+        // 4. A/B 丸のサイズ調整と塗りつぶし色・枠線色の設定 (#ff210c)
         const pointCircleLayers = [
             'directions-origin-point',
             'directions-destination-point',
@@ -86,8 +86,8 @@ body { margin: 0; padding: 0; }
         pointCircleLayers.forEach(layerId => {
             if (map.getLayer(layerId)) {
                 map.setPaintProperty(layerId, 'circle-radius', 5);
-                map.setPaintProperty(layerId, 'circle-color', '#ecc980');
-                map.setPaintProperty(layerId, 'circle-stroke-color', '#ecc980');
+                map.setPaintProperty(layerId, 'circle-color', '#ff210c');
+                map.setPaintProperty(layerId, 'circle-stroke-color', '#ff210c');
             }
         });
     }
