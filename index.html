@@ -1,100 +1,636 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
 <meta charset="utf-8">
-<title>Guides</title>
+<title>TACTICAL HUD // SATELLITE TRACKING SYSTEM</title>
 <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+
+<!-- Mapbox GL JS -->
 <link href="https://api.mapbox.com/mapbox-gl-js/v3.30.0/mapbox-gl.css" rel="stylesheet">
 <script src="https://api.mapbox.com/mapbox-gl-js/v3.30.0/mapbox-gl.js"></script>
 
-<!-- Mapbox GL Directions プラグイン -->
+<!-- Mapbox GL Directions Plugin -->
 <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.3.1/mapbox-gl-directions.js"></script>
 <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.3.1/mapbox-gl-directions.css" type="text/css">
 
 <style>
-body { margin: 0; padding: 0; }
-#map { position: absolute; top: 0; bottom: 0; width: 100%; }
+:root {
+  --neon-red: #ff210c;
+  --neon-red-glow: rgba(255, 33, 12, 0.8);
+  --neon-cyan: #00f3ff;
+  --neon-cyan-glow: rgba(0, 243, 255, 0.8);
+  --neon-green: #00ff66;
+  --neon-green-glow: rgba(0, 255, 102, 0.8);
+}
 
-/* 下部の詳細ナビゲーション案内パネルを非表示にする */
+* {
+  box-sizing: border-box;
+  user-select: none;
+}
+
+body, html {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #030508;
+  font-family: 'Share Tech Mono', monospace;
+  color: var(--neon-red);
+  overflow: hidden;
+}
+
+/* Map Container */
+#map {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+/* Subtle CRT Scanlines Effect */
+.scanlines {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 10;
+  background: linear-gradient(
+    rgba(18, 16, 16, 0) 50%, 
+    rgba(0, 0, 0, 0.2) 50%
+  );
+  background-size: 100% 4px;
+  opacity: 0.5;
+}
+
+/* Base Floating HUD Element (No background, no borders, no panels) */
+.hud-element {
+  position: absolute;
+  z-index: 20;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  font-size: 12px;
+  letter-spacing: 1px;
+  pointer-events: auto;
+}
+
+/* TOP CENTER HUD */
+.hud-top-center {
+  top: 15px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  text-shadow: 0 0 6px var(--neon-red-glow);
+}
+
+.classified-tag {
+  background: transparent;
+  color: var(--neon-red);
+  border: 1px solid var(--neon-red);
+  font-weight: bold;
+  padding: 2px 6px;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 11px;
+  animation: blink-fast 1.5s infinite;
+  text-shadow: 0 0 6px var(--neon-red-glow);
+}
+
+.title-text {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  color: #fff;
+  text-shadow: 0 0 8px var(--neon-red-glow), 0 0 12px var(--neon-red);
+}
+
+/* BOTTOM CENTER TELEMETRY */
+.hud-bottom-center {
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 25px;
+  text-align: center;
+}
+
+.coord-box {
+  display: flex;
+  flex-direction: column;
+}
+
+.coord-label {
+  font-size: 9px;
+  color: var(--neon-cyan);
+  text-shadow: 0 0 5px var(--neon-cyan-glow);
+}
+
+.coord-val {
+  font-size: 14px;
+  color: #fff;
+  font-weight: bold;
+  text-shadow: 0 0 6px var(--neon-cyan-glow), 0 0 10px #000;
+}
+
+/* TOP LEFT PANEL (Title Info) */
+.hud-top-left {
+  top: 20px;
+  left: 20px;
+}
+
+/* TOP RIGHT PANEL (Clock & Hex Stream) */
+.hud-top-right {
+  top: 20px;
+  right: 20px;
+  text-align: right;
+}
+
+/* BOTTOM LEFT PANEL (Network / Encrypt Info) */
+.hud-bottom-left {
+  bottom: 20px;
+  left: 20px;
+  text-shadow: 0 0 5px #000;
+}
+
+/* BOTTOM RIGHT PANEL (Radar & Controls) */
+.hud-bottom-right {
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+/* Transparent Radar Scope */
+.radar-container {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  border: 1px solid var(--neon-red);
+  position: relative;
+  overflow: hidden;
+  background: transparent;
+  box-shadow: 0 0 8px var(--neon-red-glow);
+}
+
+.radar-sweep {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, transparent 0deg, transparent 300deg, rgba(255, 33, 12, 0.6) 360deg);
+  animation: radar-spin 4s linear infinite;
+}
+
+.radar-grid {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 70%;
+  height: 70%;
+  border: 1px dashed rgba(255, 33, 12, 0.5);
+  border-radius: 50%;
+}
+
+.radar-cross-h {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: rgba(255, 33, 12, 0.4);
+}
+
+.radar-cross-v {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 1px;
+  height: 100%;
+  background: rgba(255, 33, 12, 0.4);
+}
+
+.radar-blip {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: #fff;
+  box-shadow: 0 0 6px #fff, 0 0 10px var(--neon-red);
+  border-radius: 50%;
+  animation: blink-fast 1s infinite alternate;
+}
+
+/* Transparent Live Hex Data Stream */
+.data-stream {
+  font-size: 10px;
+  height: 45px;
+  overflow: hidden;
+  color: var(--neon-green);
+  word-break: break-all;
+  line-height: 1.1;
+  text-align: right;
+  background: transparent;
+  padding: 0;
+  margin-top: 5px;
+  text-shadow: 0 0 5px var(--neon-green-glow);
+}
+
+/* Borderless Cyber Button */
+.cyber-btn {
+  background: transparent;
+  border: none;
+  color: var(--neon-red);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  padding: 4px 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  display: flex;
+  gap: 10px;
+  text-shadow: 0 0 6px var(--neon-red-glow);
+}
+
+.cyber-btn:hover {
+  color: #fff;
+  text-shadow: 0 0 10px var(--neon-cyan), 0 0 15px var(--neon-cyan);
+}
+
+.cyber-btn:active {
+  transform: scale(0.95);
+}
+
+/* Mapbox Directions Input Overrides - Pure Floating Inputs */
+.mapboxgl-ctrl-top-left {
+  top: 60px !important;
+  left: 20px !important;
+  z-index: 25 !important;
+  margin: 0 !important;
+}
+
+.mapboxgl-ctrl-directions {
+  background: transparent !important;
+  box-shadow: none !important;
+  font-family: 'Share Tech Mono', monospace !important;
+  min-width: 280px !important;
+  max-width: 280px !important;
+  margin: 0 !important;
+}
+
+.mapboxgl-ctrl-directions .directions-control {
+  background: transparent !important;
+  border: none !important;
+  margin-bottom: 6px !important;
+  box-shadow: none !important;
+}
+
+.mapboxgl-ctrl-directions input {
+  background: rgba(3, 5, 8, 0.6) !important;
+  color: #fff !important;
+  font-family: 'Share Tech Mono', monospace !important;
+  font-size: 12px !important;
+  border: none !important;
+  border-bottom: 1px solid var(--neon-red) !important;
+  border-radius: 0 !important;
+  padding: 6px 10px !important;
+  text-shadow: 0 0 5px var(--neon-red-glow) !important;
+  box-shadow: none !important;
+}
+
+.mapboxgl-ctrl-directions input:focus {
+  border-bottom-color: var(--neon-cyan) !important;
+  outline: none !important;
+  box-shadow: 0 2px 8px var(--neon-cyan-glow) !important;
+}
+
+.mapbox-directions-component-keyline {
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+.mapbox-directions-inputs {
+  background: transparent !important;
+}
+
+.mapbox-directions-icon {
+  filter: invert(1) sepia(1) saturate(5) hue-rotate(310deg);
+}
+
 .mapbox-directions-instructions {
-    display: none !important;
+  display: none !important;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  background-color: var(--neon-green);
+  border-radius: 50%;
+  display: inline-block;
+  box-shadow: 0 0 6px var(--neon-green);
+}
+
+/* Text glow utilities */
+.glow-red {
+  color: var(--neon-red);
+  text-shadow: 0 0 6px var(--neon-red-glow), 0 0 2px #000;
+}
+
+.glow-cyan {
+  color: var(--neon-cyan);
+  text-shadow: 0 0 6px var(--neon-cyan-glow), 0 0 2px #000;
+}
+
+.glow-green {
+  color: var(--neon-green);
+  text-shadow: 0 0 6px var(--neon-green-glow), 0 0 2px #000;
+}
+
+/* Animations */
+@keyframes radar-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes blink-fast {
+  0% { opacity: 0.3; }
+  100% { opacity: 1; }
 }
 </style>
 </head>
 <body>
+
 <div id="map"></div>
+
+<!-- Subtle Scanlines -->
+<div class="scanlines"></div>
+
+<!-- TOP CENTER PANEL -->
+<div class="hud-element hud-top-center">
+  <span class="classified-tag">RESTRICTED</span>
+  <span class="title-text">TOP SECRET // NORAD TACTICAL OVERLAY v4.8.1</span>
+  <span class="glow-green" style="font-size: 10px;">[SYS_OK]</span>
+</div>
+
+<!-- TOP LEFT PANEL (System Title Text) -->
+<div class="hud-element hud-top-left">
+  <div class="glow-cyan" style="font-weight: bold; font-size: 13px; display: flex; align-items: center; gap: 8px;">
+    <span>SYSTEM ACCESS: GRANTED</span>
+    <span class="status-dot"></span>
+  </div>
+  <div class="glow-red" style="font-size: 10px; margin-top: 2px;">TARGET TRACKING PROTOCOL 0.9.4</div>
+</div>
+
+<!-- TOP RIGHT PANEL (Clock & Live Hex Stream) -->
+<div class="hud-element hud-top-right">
+  <div class="glow-cyan" style="font-weight: bold; font-size: 11px;">
+    <span>SATELLITE CH-09</span>
+    <span class="glow-red" style="margin-left: 6px;">[REC]</span>
+  </div>
+  <div id="utcClock" class="glow-red" style="font-size: 16px; font-weight: bold; color: #fff; margin-top: 2px;">00:00:00 UTC</div>
+  <div id="jstClock" class="glow-cyan" style="font-size: 11px; margin-bottom: 4px;">00:00:00 JST</div>
+  <div style="font-size: 10px; color: #aaa; text-shadow: 0 0 4px #000;">LAT/LON LOG: ACTIVE</div>
+  <div class="data-stream" id="hexStream">
+    0x4F8A 0x99B2 0x11C4 0xEE7F<br>
+    0xA801 0x33F2 0x77C1 0x00FF<br>
+    0x91B3 0x88D4 0x34E0 0x12A9
+  </div>
+</div>
+
+<!-- BOTTOM LEFT PANEL (Network & Link Info) -->
+<div class="hud-element hud-bottom-left">
+  <div class="glow-cyan" style="font-weight: bold; font-size: 11px; margin-bottom: 4px;">
+    SATELLITE LINK: ACTIVE <span style="font-size: 9px; opacity: 0.8;">(12ms)</span>
+  </div>
+  <div style="line-height: 1.5;">
+    <div class="glow-red">ENCRYPTION: <span class="glow-green">AES-256-GCM</span></div>
+    <div class="glow-red">PACKETS TRACED: <span id="packetCount" style="color: #fff; text-shadow: 0 0 6px #fff;">184,920</span></div>
+    <div class="glow-red">SIGNAL: <span class="glow-green">98.4% [||||||||||]</span></div>
+    <div style="font-size: 10px; color: #888; text-shadow: 0 0 4px #000; margin-top: 2px;">HOST: 192.168.0.104 // PORT: 8080</div>
+  </div>
+</div>
+
+<!-- BOTTOM RIGHT PANEL (Radar & Control Text) -->
+<div class="hud-element hud-bottom-right">
+  <div class="radar-container">
+    <div class="radar-sweep"></div>
+    <div class="radar-grid"></div>
+    <div class="radar-cross-h"></div>
+    <div class="radar-cross-v"></div>
+    <div class="radar-blip" style="top: 30px; left: 65px;"></div>
+    <div class="radar-blip" style="top: 70px; left: 35px; animation-delay: 0.5s;"></div>
+  </div>
+  
+  <button class="cyber-btn" onclick="pingLocation()">
+    <span>> PING LOCATION</span>
+    <span>[F1]</span>
+  </button>
+</div>
+
+<!-- BOTTOM CENTER PANEL (Coordinates Telemetry) -->
+<div class="hud-element hud-bottom-center">
+  <div class="coord-box">
+    <span class="coord-label">LATITUDE</span>
+    <span class="coord-val" id="telemetryLat">28.6139</span>
+  </div>
+  <div class="coord-box">
+    <span class="coord-label">LONGITUDE</span>
+    <span class="coord-val" id="telemetryLng">77.2090</span>
+  </div>
+  <div class="coord-box">
+    <span class="coord-label">ZOOM LEVEL</span>
+    <span class="coord-val" id="telemetryZoom">11.00</span>
+  </div>
+  <div class="coord-box">
+    <span class="coord-label">BEARING</span>
+    <span class="coord-val" id="telemetryBearing">0.0°</span>
+  </div>
+</div>
+
 <script>
+    // Global exception guard
+    window.onerror = function(msg, url, lineNo, columnNo, error) {
+        console.warn('Suppressed script error:', msg);
+        return true;
+    };
+
     mapboxgl.accessToken = 'pk.eyJ1IjoibWMxZHBiYWJnb2d1IiwiYSI6ImNtdWg0NmhhbDAxZ3YzNHBxc2R2d25pZXUifQ.jco9CKcl7GfcSr2Lh79gLA';
 
-    const map = new mapboxgl.Map({
-        container: 'map',
-        style: 'mapbox://styles/mc1dpbabgogu/cmumrim97003901sl30ltg4o2',
-        projection: 'mercator',
-        zoom: 11,
-        center: [77.2090, 28.6139]
-    });
+    const PRIMARY_STYLE = 'mapbox://styles/mc1dpbabgogu/cmumrim97003901sl30ltg4o2';
+    const FALLBACK_STYLE = 'mapbox://styles/mapbox/dark-v11';
 
-    // 右上のナビゲーションボタン（NavigationControl）は削除済み
-
-    const directions = new MapboxDirections({
-        accessToken: mapboxgl.accessToken,
-        unit: 'metric',
-        profile: 'mapbox/driving',
-        language: 'ja'
-    });
-
-    map.addControl(directions, 'top-left');
-
-    // カスタムスタイルの適用処理
-    function applyCustomStyles() {
-        // 1. 青い縁取り（外枠線）を非表示
-        if (map.getLayer('directions-route-line-casing')) {
-            map.setPaintProperty('directions-route-line-casing', 'line-width', 0);
-        }
-        if (map.getLayer('directions-route-line-alt-casing')) {
-            map.setPaintProperty('directions-route-line-alt-casing', 'line-width', 0);
-        }
-
-        // 2. ルート線
-        if (map.getLayer('directions-route-line')) {
-            map.setPaintProperty('directions-route-line', 'line-color', '#ff210c');
-            map.setPaintProperty('directions-route-line', 'line-width', 2);
-        }
-        if (map.getLayer('directions-route-line-alt')) {
-            map.setPaintProperty('directions-route-line-alt', 'line-color', '#ff210c');
-            map.setPaintProperty('directions-route-line-alt', 'line-width', 2);
-        }
-
-        // 3. A/B テキスト（文字）の消去
-        const pointTextLayers = [
-            'directions-origin-label',
-            'directions-destination-label',
-            'directions-waypoint-label'
-        ];
-        pointTextLayers.forEach(layerId => {
-            if (map.getLayer(layerId)) {
-                map.setLayoutProperty(layerId, 'text-field', '');
-            }
+    let map;
+    try {
+        map = new mapboxgl.Map({
+            container: 'map',
+            style: PRIMARY_STYLE,
+            projection: 'mercator',
+            zoom: 11,
+            center: [77.2090, 28.6139]
         });
-
-        // 4. A/B 丸のサイズ調整と塗りつぶし色・枠線色の設定 (#ff210c)
-        const pointCircleLayers = [
-            'directions-origin-point',
-            'directions-destination-point',
-            'directions-waypoint-point'
-        ];
-        pointCircleLayers.forEach(layerId => {
-            if (map.getLayer(layerId)) {
-                map.setPaintProperty(layerId, 'circle-radius', 5);
-                map.setPaintProperty(layerId, 'circle-color', '#ff210c');
-                map.setPaintProperty(layerId, 'circle-stroke-color', '#ff210c');
-            }
+    } catch(err) {
+        console.warn('Map initialization fallback triggered:', err);
+        map = new mapboxgl.Map({
+            container: 'map',
+            style: FALLBACK_STYLE,
+            projection: 'mercator',
+            zoom: 11,
+            center: [77.2090, 28.6139]
         });
     }
 
-    map.on('style.load', applyCustomStyles);
-    directions.on('route', applyCustomStyles);
-</script>
+    // Automatic style fallback if token or custom style load fails
+    let styleFallbackAttempted = false;
+    map.on('error', (e) => {
+        if (!styleFallbackAttempted && e && e.error && e.error.message && 
+           (e.error.message.includes('style') || e.error.status === 401 || e.error.status === 403)) {
+            styleFallbackAttempted = true;
+            map.setStyle(FALLBACK_STYLE);
+        }
+    });
 
+    // Directions plugin init
+    let directions;
+    try {
+        directions = new MapboxDirections({
+            accessToken: mapboxgl.accessToken,
+            unit: 'metric',
+            profile: 'mapbox/driving',
+            language: 'ja',
+            controls: {
+                instructions: false
+            }
+        });
+        map.addControl(directions, 'top-left');
+    } catch(e) {
+        console.warn('Directions plugin failed to load:', e);
+    }
+
+    // Route customization logic
+    function applyCustomStyles() {
+        try {
+            if (map.getLayer('directions-route-line-casing')) {
+                map.setPaintProperty('directions-route-line-casing', 'line-width', 0);
+            }
+            if (map.getLayer('directions-route-line-alt-casing')) {
+                map.setPaintProperty('directions-route-line-alt-casing', 'line-width', 0);
+            }
+
+            if (map.getLayer('directions-route-line')) {
+                map.setPaintProperty('directions-route-line', 'line-color', '#ff210c');
+                map.setPaintProperty('directions-route-line', 'line-width', 4);
+            }
+            if (map.getLayer('directions-route-line-alt')) {
+                map.setPaintProperty('directions-route-line-alt', 'line-color', '#00f3ff');
+                map.setPaintProperty('directions-route-line-alt', 'line-width', 3);
+            }
+
+            const pointTextLayers = [
+                'directions-origin-label',
+                'directions-destination-label',
+                'directions-waypoint-label'
+            ];
+            pointTextLayers.forEach(layerId => {
+                if (map.getLayer(layerId)) {
+                    map.setLayoutProperty(layerId, 'text-field', '');
+                }
+            });
+
+            const pointCircleLayers = [
+                'directions-origin-point',
+                'directions-destination-point',
+                'directions-waypoint-point'
+            ];
+            pointCircleLayers.forEach(layerId => {
+                if (map.getLayer(layerId)) {
+                    map.setPaintProperty(layerId, 'circle-radius', 6);
+                    map.setPaintProperty(layerId, 'circle-color', '#ff210c');
+                    map.setPaintProperty(layerId, 'circle-stroke-color', '#ffffff');
+                    map.setPaintProperty(layerId, 'circle-stroke-width', 2);
+                }
+            });
+        } catch (e) {}
+    }
+
+    map.on('style.load', applyCustomStyles);
+    if (directions) {
+        directions.on('route', applyCustomStyles);
+    }
+
+    // Dynamic telemetry updates
+    function updateTelemetry() {
+        try {
+            const center = map.getCenter();
+            const zoom = map.getZoom();
+            const bearing = map.getBearing();
+
+            document.getElementById('telemetryLat').innerText = center.lat.toFixed(4);
+            document.getElementById('telemetryLng').innerText = center.lng.toFixed(4);
+            document.getElementById('telemetryZoom').innerText = zoom.toFixed(2);
+            document.getElementById('telemetryBearing').innerText = bearing.toFixed(1) + '°';
+        } catch(e) {}
+    }
+
+    map.on('move', updateTelemetry);
+    updateTelemetry();
+
+    // Clock updates
+    function updateClocks() {
+        const now = new Date();
+        document.getElementById('utcClock').innerText = now.toUTCString().split(' ')[4] + ' UTC';
+        
+        const jstString = now.toLocaleTimeString('ja-JP', { timeZone: 'Asia/Tokyo', hour12: false });
+        document.getElementById('jstClock').innerText = jstString + ' JST';
+    }
+    setInterval(updateClocks, 1000);
+    updateClocks();
+
+    // Random Hex Data Stream Animation
+    function updateHexStream() {
+        const hexChars = '0123456789ABCDEF';
+        let result = '';
+        for (let i = 0; i < 3; i++) {
+            let line = '';
+            for (let j = 0; j < 4; j++) {
+                line += '0x' + hexChars[Math.floor(Math.random()*16)] + hexChars[Math.floor(Math.random()*16)] + hexChars[Math.floor(Math.random()*16)] + hexChars[Math.floor(Math.random()*16)] + ' ';
+            }
+            result += line + '<br>';
+        }
+        document.getElementById('hexStream').innerHTML = result;
+    }
+    setInterval(updateHexStream, 250);
+
+    // Dynamic Packet Count simulation
+    let packetCount = 184920;
+    setInterval(() => {
+        packetCount += Math.floor(Math.random() * 15) + 1;
+        document.getElementById('packetCount').innerText = packetCount.toLocaleString();
+    }, 500);
+
+    // Interactive Action
+    function pingLocation() {
+        const center = map.getCenter();
+        console.log('Location Pinged:', center.lat, center.lng);
+        map.flyTo({
+            center: [center.lng + (Math.random() - 0.5) * 0.02, center.lat + (Math.random() - 0.5) * 0.02],
+            zoom: map.getZoom(),
+            speed: 0.8
+        });
+    }
+</script>
 </body>
 </html>
