@@ -2,10 +2,10 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<title>SpyMovieMap</title>
+<title>SpyMovieMap - Tactical NORAD HUD</title>
 <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
 
-<!-- Fonts -->
+<!-- Google Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
@@ -60,7 +60,7 @@ body, html {
   display: none !important;
 }
 
-/* Hide Directions UI, keep plugin active */
+/* Hide Directions UI, keep plugin active for programmatic routing */
 .mapboxgl-ctrl-directions {
   display: none !important;
 }
@@ -154,27 +154,27 @@ body, html {
   text-shadow: 0 0 6px var(--neon-cyan-glow), 0 0 10px #000;
 }
 
-/* TOP LEFT PANEL (Title Info) */
+/* TOP LEFT PANEL */
 .hud-top-left {
   top: 20px;
   left: 20px;
 }
 
-/* TOP RIGHT PANEL (Clock & Hex Stream) */
+/* TOP RIGHT PANEL */
 .hud-top-right {
   top: 20px;
   right: 20px;
   text-align: right;
 }
 
-/* BOTTOM LEFT PANEL (Network / Encrypt Info) */
+/* BOTTOM LEFT PANEL */
 .hud-bottom-left {
   bottom: 20px;
   left: 20px;
   text-shadow: 0 0 5px #000;
 }
 
-/* BOTTOM RIGHT PANEL (Radar & Controls) */
+/* BOTTOM RIGHT PANEL */
 .hud-bottom-right {
   bottom: 20px;
   right: 20px;
@@ -184,7 +184,7 @@ body, html {
   gap: 10px;
 }
 
-/* Transparent Radar Scope */
+/* Radar Scope Container */
 .radar-container {
   width: 100px;
   height: 100px;
@@ -246,7 +246,7 @@ body, html {
   animation: blink-fast 1s infinite alternate;
 }
 
-/* Transparent Live Hex Data Stream */
+/* Hex Stream Data Text Area */
 .data-stream {
   font-size: 10px;
   height: 45px;
@@ -261,7 +261,7 @@ body, html {
   margin-top: 5px;
 }
 
-/* Borderless Cyber Button */
+/* Cyber Button Styling */
 .cyber-btn {
   background: transparent;
   border: none;
@@ -286,16 +286,7 @@ body, html {
   transform: scale(0.95);
 }
 
-.status-dot {
-  width: 8px;
-  height: 8px;
-  background-color: var(--neon-green);
-  border-radius: 50%;
-  display: inline-block;
-  box-shadow: 0 0 6px var(--neon-green);
-}
-
-/* Text glow utilities */
+/* Glowing utilities */
 .glow-red {
   color: var(--neon-red);
   text-shadow: 0 0 6px var(--neon-red-glow), 0 0 2px #000;
@@ -311,7 +302,7 @@ body, html {
   text-shadow: 0 0 6px var(--neon-green-glow), 0 0 2px #000;
 }
 
-/* Animations */
+/* Keyframe Animations */
 @keyframes radar-spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
@@ -326,8 +317,6 @@ body, html {
 <body>
 
 <div id="map"></div>
-
-<!-- Subtle Scanlines -->
 <div class="scanlines"></div>
 
 <!-- TOP CENTER PANEL -->
@@ -336,12 +325,12 @@ body, html {
   <span class="title-text">NORAD TACTICAL OVERLAY v4.8.1</span>
 </div>
 
-<!-- TOP LEFT PANEL (System Title Text) -->
+<!-- TOP LEFT PANEL -->
 <div class="hud-element hud-top-left">
   <div class="glow-red" style="font-size: 10px; margin-top: 2px;">TARGET TRACKING PROTOCOL 0.9.4</div>
 </div>
 
-<!-- TOP RIGHT PANEL (Clock & Live Hex Stream) -->
+<!-- TOP RIGHT PANEL -->
 <div class="hud-element hud-top-right">
   <div class="glow-red" style="font-weight: bold; font-size: 11px;">
     <span>SATELLITE CH-09</span>
@@ -356,7 +345,7 @@ body, html {
   </div>
 </div>
 
-<!-- BOTTOM LEFT PANEL (Network & Link Info) -->
+<!-- BOTTOM LEFT PANEL -->
 <div class="hud-element hud-bottom-left">
   <div style="line-height: 1.5;">
     <div style="font-size: 10px; color: #888; text-shadow: 0 0 4px #000; margin-top: 2px;">SATELLITE LINK: ACTIVE <span style="font-size: 9px; opacity: 0.8;">(12ms)</span></div>
@@ -366,7 +355,7 @@ body, html {
   </div>
 </div>
 
-<!-- BOTTOM RIGHT PANEL (Radar & Control Text) -->
+<!-- BOTTOM RIGHT PANEL -->
 <div class="hud-element hud-bottom-right">
   <div class="radar-container">
     <div class="radar-sweep"></div>
@@ -383,7 +372,7 @@ body, html {
   </button>
 </div>
 
-<!-- BOTTOM CENTER PANEL (Coordinates Telemetry) -->
+<!-- BOTTOM CENTER PANEL -->
 <div class="hud-element hud-bottom-center">
   <div class="coord-box">
     <span class="coord-label">LATITUDE</span>
@@ -404,7 +393,6 @@ body, html {
 </div>
 
 <script>
-    // Global exception guard
     window.onerror = function(msg, url, lineNo, columnNo, error) {
         console.warn('Suppressed script error:', msg);
         return true;
@@ -435,7 +423,6 @@ body, html {
         });
     }
 
-    // Automatic style fallback if token or custom style load fails
     let styleFallbackAttempted = false;
     map.on('error', (e) => {
         if (!styleFallbackAttempted && e && e.error && e.error.message && 
@@ -445,7 +432,7 @@ body, html {
         }
     });
 
-    // Directions plugin init (JavaScript機能は維持)
+    // Initialize Mapbox Directions Plugin
     let directions;
     try {
         directions = new MapboxDirections({
@@ -462,25 +449,35 @@ body, html {
         console.warn('Directions plugin failed to load:', e);
     }
 
-    // Route customization logic
     function applyCustomStyles() {
         try {
+            // Apply neon red glow effect to route line casing (underlay blur layer)
             if (map.getLayer('directions-route-line-casing')) {
-                map.setPaintProperty('directions-route-line-casing', 'line-width', 0);
+                map.setPaintProperty('directions-route-line-casing', 'line-color', '#ff210c');
+                map.setPaintProperty('directions-route-line-casing', 'line-width', 12);
+                map.setPaintProperty('directions-route-line-casing', 'line-blur', 8);
+                map.setPaintProperty('directions-route-line-casing', 'line-opacity', 0.85);
             }
             if (map.getLayer('directions-route-line-alt-casing')) {
-                map.setPaintProperty('directions-route-line-alt-casing', 'line-width', 0);
+                map.setPaintProperty('directions-route-line-alt-casing', 'line-color', '#00f3ff');
+                map.setPaintProperty('directions-route-line-alt-casing', 'line-width', 10);
+                map.setPaintProperty('directions-route-line-alt-casing', 'line-blur', 6);
+                map.setPaintProperty('directions-route-line-alt-casing', 'line-opacity', 0.75);
             }
 
+            // Core sharp route line on top of the blur layer
             if (map.getLayer('directions-route-line')) {
                 map.setPaintProperty('directions-route-line', 'line-color', '#ff210c');
                 map.setPaintProperty('directions-route-line', 'line-width', 4);
+                map.setPaintProperty('directions-route-line', 'line-opacity', 1.0);
             }
             if (map.getLayer('directions-route-line-alt')) {
                 map.setPaintProperty('directions-route-line-alt', 'line-color', '#00f3ff');
                 map.setPaintProperty('directions-route-line-alt', 'line-width', 3);
+                map.setPaintProperty('directions-route-line-alt', 'line-opacity', 0.9);
             }
 
+            // Waypoint and origin/destination markers styling
             const pointTextLayers = [
                 'directions-origin-label',
                 'directions-destination-label',
@@ -505,7 +502,9 @@ body, html {
                     map.setPaintProperty(layerId, 'circle-stroke-width', 2);
                 }
             });
-        } catch (e) {}
+        } catch (e) {
+            console.warn('Error applying route glow styles:', e);
+        }
     }
 
     map.on('style.load', applyCustomStyles);
@@ -513,7 +512,18 @@ body, html {
         directions.on('route', applyCustomStyles);
     }
 
-    // Dynamic telemetry updates
+    // Set sample route programmatically to demonstrate the neon glowing route
+    map.on('load', () => {
+        applyCustomStyles();
+        if (directions) {
+            try {
+                // Coordinates for New Delhi sample route
+                directions.setOrigin([77.2090, 28.6139]);
+                directions.setDestination([77.2300, 28.6500]);
+            } catch(e) {}
+        }
+    });
+
     function updateTelemetry() {
         try {
             const center = map.getCenter();
@@ -541,7 +551,7 @@ body, html {
     setInterval(updateClocks, 1000);
     updateClocks();
 
-    // Random Hex Data Stream Animation
+    // Random Hex Stream Animation
     function updateHexStream() {
         const hexChars = '0123456789ABCDEF';
         let result = '';
@@ -556,17 +566,16 @@ body, html {
     }
     setInterval(updateHexStream, 250);
 
-    // Dynamic Packet Count simulation
+    // Packet Count Simulation
     let packetCount = 184920;
     setInterval(() => {
         packetCount += Math.floor(Math.random() * 15) + 1;
         document.getElementById('packetCount').innerText = packetCount.toLocaleString();
     }, 500);
 
-    // Interactive Action
+    // Interactive Ping Action
     function pingLocation() {
         const center = map.getCenter();
-        console.log('Location Pinged:', center.lat, center.lng);
         map.flyTo({
             center: [center.lng + (Math.random() - 0.5) * 0.02, center.lat + (Math.random() - 0.5) * 0.02],
             zoom: map.getZoom(),
