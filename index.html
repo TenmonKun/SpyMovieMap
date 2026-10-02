@@ -131,9 +131,9 @@ body, html {
 }
 
 .coord-label {
-  font-size: 9px;
-  color: var(--neon-cyan);
-  text-shadow: 0 0 5px var(--neon-cyan-glow);
+  font-size: 10px;
+  color: #888; 
+  text-shadow: 0 0 4px #000;
 }
 
 .coord-val {
@@ -409,7 +409,7 @@ body, html {
 <div class="hud-element hud-bottom-left">
   <div style="line-height: 1.5;">
     <div style="font-size: 10px; color: #888; text-shadow: 0 0 4px #000; margin-top: 2px;">SATELLITE LINK: ACTIVE <span style="font-size: 9px; opacity: 0.8;">(12ms)</span></div>
-    <div class="glow-red">ENCRYPTION: <span class="glow-green">AES-256-GCM</span></div>
+    <div class="glow-red">ENCRYPTION: <span id="packetCount" style="color: #fff; text-shadow: 0 0 6px #fff;">AES-256-GCM</span></div>
     <div class="glow-red">PACKETS TRACED: <span id="packetCount" style="color: #fff; text-shadow: 0 0 6px #fff;">184,920</span></div>
     <div style="font-size: 10px; color: #888; text-shadow: 0 0 4px #000; margin-top: 2px;">HOST: 192.168.0.104 // PORT: 8080</div>
   </div>
