@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<title>SpyMovieMap - Tactical NORAD HUD</title>
+<title>SpyMovieMap</title>
 <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
 
 <!-- Google Fonts -->
@@ -82,61 +82,6 @@ body, html {
   opacity: 0.5;
 }
 
-/* --- 画面の縁の灰色グリッド線・コーナー線 --- */
-.screen-edge-grid {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 15;
-}
-
-/* 外周の薄い灰色の枠線 */
-.screen-edge-grid::before {
-  content: '';
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  right: 10px;
-  bottom: 10px;
-  border: 1px solid rgba(128, 128, 128, 0.35);
-}
-
-/* 四隅の強調コーナーグリッド（灰色） */
-.corner-bracket {
-  position: absolute;
-  width: 30px;
-  height: 30px;
-  border-color: rgba(180, 180, 180, 0.7);
-  border-style: solid;
-}
-
-.corner-tl {
-  top: 6px;
-  left: 6px;
-  border-width: 2px 0 0 2px;
-}
-
-.corner-tr {
-  top: 6px;
-  right: 6px;
-  border-width: 2px 2px 0 0;
-}
-
-.corner-bl {
-  bottom: 6px;
-  left: 6px;
-  border-width: 0 0 2px 2px;
-}
-
-.corner-br {
-  bottom: 6px;
-  right: 6px;
-  border-width: 0 2px 2px 0;
-}
-
 /* Base Floating HUD Element (No background, no borders, no panels) */
 .hud-element {
   position: absolute;
@@ -206,7 +151,7 @@ body, html {
   font-size: 14px;
   color: #fff;
   font-weight: bold;
-  text-shadow: 0 0 6px var(--neon-cyan-glow), 0 0 10px #000;
+  text-shadow: 0 0 6px #fff, 0 0 10px #000;
 }
 
 /* TOP LEFT PANEL */
@@ -357,6 +302,11 @@ body, html {
   text-shadow: 0 0 6px var(--neon-green-glow), 0 0 2px #000;
 }
 
+.glow-white {
+  color: #fff;
+  text-shadow: 0 0 6px #fff, 0 0 2px #000;
+}
+
 /* Keyframe Animations */
 @keyframes radar-spin {
   from { transform: rotate(0deg); }
@@ -374,14 +324,6 @@ body, html {
 <div id="map"></div>
 <div class="scanlines"></div>
 
-<!-- 画面の縁の灰色グリッド線 -->
-<div class="screen-edge-grid">
-  <div class="corner-bracket corner-tl"></div>
-  <div class="corner-bracket corner-tr"></div>
-  <div class="corner-bracket corner-bl"></div>
-  <div class="corner-bracket corner-br"></div>
-</div>
-
 <!-- TOP CENTER PANEL -->
 <div class="hud-element hud-top-center">
   <span class="classified-tag">RESTRICTED</span>
@@ -398,8 +340,8 @@ body, html {
   <div class="glow-red" style="font-weight: bold; font-size: 11px;">
     <span>SATELLITE CH-09</span>
   </div>
-  <div id="utcClock" class="glow-red" style="font-size: 16px; font-weight: bold; color: #fff; margin-top: 2px;">00:00:00 UTC</div>
-  <div id="jstClock" class="glow-red" style="font-size: 16px; font-weight: bold; color: #fff; margin-bottom: 4px;">00:00:00 JST</div>
+  <div id="utcClock" class="glow-white" style="font-size: 16px; font-weight: bold; color: #fff; margin-top: 2px;">00:00:00 UTC</div>
+  <div id="jstClock" class="glow-white" style="font-size: 16px; font-weight: bold; color: #fff; margin-bottom: 4px;">00:00:00 JST</div>
   <div style="font-size: 10px; color: #aaa; text-shadow: 0 0 4px #000;">LAT/LON LOG: ACTIVE</div>
   <div class="data-stream" id="hexStream">
     0x4F8A 0x99B2 0x11C4 0xEE7F<br>
