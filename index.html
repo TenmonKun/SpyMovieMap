@@ -459,13 +459,13 @@ body, html {
             // Apply neon red glow effect to route line casing (underlay blur layer)
             if (map.getLayer('directions-route-line-casing')) {
                 map.setPaintProperty('directions-route-line-casing', 'line-color', '#ff210c');
-                map.setPaintProperty('directions-route-line-casing', 'line-width', 12);
+                map.setPaintProperty('directions-route-line-casing', 'line-width', 14);
                 map.setPaintProperty('directions-route-line-casing', 'line-blur', 8);
                 map.setPaintProperty('directions-route-line-casing', 'line-opacity', 0.85);
             }
             if (map.getLayer('directions-route-line-alt-casing')) {
                 map.setPaintProperty('directions-route-line-alt-casing', 'line-color', '#00f3ff');
-                map.setPaintProperty('directions-route-line-alt-casing', 'line-width', 10);
+                map.setPaintProperty('directions-route-line-alt-casing', 'line-width', 12);
                 map.setPaintProperty('directions-route-line-alt-casing', 'line-blur', 6);
                 map.setPaintProperty('directions-route-line-alt-casing', 'line-opacity', 0.75);
             }
@@ -473,12 +473,12 @@ body, html {
             // Core sharp route line on top of the blur layer
             if (map.getLayer('directions-route-line')) {
                 map.setPaintProperty('directions-route-line', 'line-color', '#ffffff'); //'#ff210c'
-                map.setPaintProperty('directions-route-line', 'line-width', 4);
+                map.setPaintProperty('directions-route-line', 'line-width', 3);
                 map.setPaintProperty('directions-route-line', 'line-opacity', 1.0);
             }
             if (map.getLayer('directions-route-line-alt')) {
                 map.setPaintProperty('directions-route-line-alt', 'line-color', '#ffffff');
-                map.setPaintProperty('directions-route-line-alt', 'line-width', 3);
+                map.setPaintProperty('directions-route-line-alt', 'line-width', 2);
                 map.setPaintProperty('directions-route-line-alt', 'line-opacity', 0.9);
             }
 
