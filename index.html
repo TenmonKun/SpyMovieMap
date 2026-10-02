@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<title>SpyMovieMap</title>
+<title>SpyMovieMap - Tactical NORAD HUD</title>
 <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
 
 <!-- Google Fonts -->
@@ -80,6 +80,61 @@ body, html {
   );
   background-size: 100% 4px;
   opacity: 0.5;
+}
+
+/* --- 画面の縁の灰色グリッド線・コーナー線 --- */
+.screen-edge-grid {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 15;
+}
+
+/* 外周の薄い灰色の枠線 */
+.screen-edge-grid::before {
+  content: '';
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
+  border: 1px solid rgba(128, 128, 128, 0.35);
+}
+
+/* 四隅の強調コーナーグリッド（灰色） */
+.corner-bracket {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  border-color: rgba(180, 180, 180, 0.7);
+  border-style: solid;
+}
+
+.corner-tl {
+  top: 6px;
+  left: 6px;
+  border-width: 2px 0 0 2px;
+}
+
+.corner-tr {
+  top: 6px;
+  right: 6px;
+  border-width: 2px 2px 0 0;
+}
+
+.corner-bl {
+  bottom: 6px;
+  left: 6px;
+  border-width: 0 0 2px 2px;
+}
+
+.corner-br {
+  bottom: 6px;
+  right: 6px;
+  border-width: 0 2px 2px 0;
 }
 
 /* Base Floating HUD Element (No background, no borders, no panels) */
@@ -318,6 +373,14 @@ body, html {
 
 <div id="map"></div>
 <div class="scanlines"></div>
+
+<!-- 画面の縁の灰色グリッド線 -->
+<div class="screen-edge-grid">
+  <div class="corner-bracket corner-tl"></div>
+  <div class="corner-bracket corner-tr"></div>
+  <div class="corner-bracket corner-bl"></div>
+  <div class="corner-bracket corner-br"></div>
+</div>
 
 <!-- TOP CENTER PANEL -->
 <div class="hud-element hud-top-center">
