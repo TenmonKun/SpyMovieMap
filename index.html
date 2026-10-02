@@ -383,26 +383,20 @@ body, html {
 <div class="hud-element hud-top-center">
   <span class="classified-tag">RESTRICTED</span>
   <span class="title-text">TOP SECRET // NORAD TACTICAL OVERLAY v4.8.1</span>
-  <span class="glow-green" style="font-size: 10px;">[SYS_OK]</span>
 </div>
 
 <!-- TOP LEFT PANEL (System Title Text) -->
 <div class="hud-element hud-top-left">
-  <div class="glow-cyan" style="font-weight: bold; font-size: 13px; display: flex; align-items: center; gap: 8px;">
-    <span>SYSTEM ACCESS: GRANTED</span>
-    <span class="status-dot"></span>
-  </div>
   <div class="glow-red" style="font-size: 10px; margin-top: 2px;">TARGET TRACKING PROTOCOL 0.9.4</div>
 </div>
 
 <!-- TOP RIGHT PANEL (Clock & Live Hex Stream) -->
 <div class="hud-element hud-top-right">
-  <div class="glow-cyan" style="font-weight: bold; font-size: 11px;">
+  <div class="glow-red" style="font-weight: bold; font-size: 11px;">
     <span>SATELLITE CH-09</span>
-    <span class="glow-red" style="margin-left: 6px;">[REC]</span>
   </div>
   <div id="utcClock" class="glow-red" style="font-size: 16px; font-weight: bold; color: #fff; margin-top: 2px;">00:00:00 UTC</div>
-  <div id="jstClock" class="glow-cyan" style="font-size: 11px; margin-bottom: 4px;">00:00:00 JST</div>
+  <div id="jstClock" class="glow-red" style="font-size: 16px; font-weight: bold; color: #fff; margin-bottom: 4px;">00:00:00 JST</div>
   <div style="font-size: 10px; color: #aaa; text-shadow: 0 0 4px #000;">LAT/LON LOG: ACTIVE</div>
   <div class="data-stream" id="hexStream">
     0x4F8A 0x99B2 0x11C4 0xEE7F<br>
@@ -413,10 +407,8 @@ body, html {
 
 <!-- BOTTOM LEFT PANEL (Network & Link Info) -->
 <div class="hud-element hud-bottom-left">
-  <div class="glow-cyan" style="font-weight: bold; font-size: 11px; margin-bottom: 4px;">
-    SATELLITE LINK: ACTIVE <span style="font-size: 9px; opacity: 0.8;">(12ms)</span>
-  </div>
   <div style="line-height: 1.5;">
+    <div style="font-size: 10px; color: #888; text-shadow: 0 0 4px #000; margin-top: 2px;">SATELLITE LINK: ACTIVE <span style="font-size: 9px; opacity: 0.8;">(12ms)</span></div>
     <div class="glow-red">ENCRYPTION: <span class="glow-green">AES-256-GCM</span></div>
     <div class="glow-red">PACKETS TRACED: <span id="packetCount" style="color: #fff; text-shadow: 0 0 6px #fff;">184,920</span></div>
     <div class="glow-red">SIGNAL: <span class="glow-green">98.4% [||||||||||]</span></div>
