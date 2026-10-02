@@ -477,28 +477,6 @@ body, html {
                 map.setPaintProperty('directions-route-line-alt', 'line-opacity', 0.9);
             }
 
-            // スタート（Origin）のラベル設定
-            if (map.getLayer('directions-origin-label')) {
-                map.setLayoutProperty('directions-origin-label', 'text-field', 'START POINT');
-                map.setLayoutProperty('directions-origin-label', 'text-font', ['Open Sans Bold', 'Arial Unicode MS Bold']);
-                map.setLayoutProperty('directions-origin-label', 'text-size', 12);
-                map.setLayoutProperty('directions-origin-label', 'text-offset', [0, -1.5]); // アイコンの上に配置
-                map.setPaintProperty('directions-origin-label', 'text-color', '#00f3ff');
-                map.setPaintProperty('directions-origin-label', 'text-halo-color', '#000000');
-                map.setPaintProperty('directions-origin-label', 'text-halo-width', 2);
-            }
-
-            // ゴール（Destination）のラベル設定
-            if (map.getLayer('directions-destination-label')) {
-                map.setLayoutProperty('directions-destination-label', 'text-field', 'TARGET DESTINATION');
-                map.setLayoutProperty('directions-destination-label', 'text-font', ['Open Sans Bold', 'Arial Unicode MS Bold']);
-                map.setLayoutProperty('directions-destination-label', 'text-size', 12);
-                map.setLayoutProperty('directions-destination-label', 'text-offset', [0, -1.5]); // アイコンの上に配置
-                map.setPaintProperty('directions-destination-label', 'text-color', '#ff210c');
-                map.setPaintProperty('directions-destination-label', 'text-halo-color', '#000000');
-                map.setPaintProperty('directions-destination-label', 'text-halo-width', 2);
-            }
-
             // Waypoint and origin/destination markers styling
             const pointTextLayers = [
                 'directions-origin-label',
