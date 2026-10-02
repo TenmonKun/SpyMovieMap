@@ -14,10 +14,6 @@
 <link href="https://api.mapbox.com/mapbox-gl-js/v3.30.0/mapbox-gl.css" rel="stylesheet">
 <script src="https://api.mapbox.com/mapbox-gl-js/v3.30.0/mapbox-gl.js"></script>
 
-<!-- Mapbox GL Directions Plugin -->
-<script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.3.1/mapbox-gl-directions.js"></script>
-<link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.3.1/mapbox-gl-directions.css" type="text/css">
-
 <style>
 :root {
   --neon-red: #ff210c;
@@ -54,6 +50,14 @@ body, html {
   z-index: 1;
 }
 
+/* Mapbox Logo & Attribution Hide */
+.mapboxgl-ctrl-bottom-left,
+.mapboxgl-ctrl-bottom-right,
+.mapboxgl-ctrl-logo,
+.mapboxgl-compact {
+  display: none !important;
+}
+
 /* Subtle CRT Scanlines Effect */
 .scanlines {
   position: absolute;
@@ -71,7 +75,7 @@ body, html {
   opacity: 0.5;
 }
 
-/* Base Floating HUD Element (No background, no borders, no panels) */
+/* Base Floating HUD Element */
 .hud-element {
   position: absolute;
   z-index: 20;
@@ -275,66 +279,6 @@ body, html {
   transform: scale(0.95);
 }
 
-/* Mapbox Directions Input Overrides - Pure Floating Inputs */
-.mapboxgl-ctrl-top-left {
-  top: 60px !important;
-  left: 20px !important;
-  z-index: 25 !important;
-  margin: 0 !important;
-}
-
-.mapboxgl-ctrl-directions {
-  background: transparent !important;
-  box-shadow: none !important;
-  font-family: 'Share Tech Mono', monospace !important;
-  min-width: 280px !important;
-  max-width: 280px !important;
-  margin: 0 !important;
-}
-
-.mapboxgl-ctrl-directions .directions-control {
-  background: transparent !important;
-  border: none !important;
-  margin-bottom: 6px !important;
-  box-shadow: none !important;
-}
-
-.mapboxgl-ctrl-directions input {
-  background: rgba(3, 5, 8, 0.6) !important;
-  color: #fff !important;
-  font-family: 'Share Tech Mono', monospace !important;
-  font-size: 12px !important;
-  border: none !important;
-  border-bottom: 1px solid var(--neon-red) !important;
-  border-radius: 0 !important;
-  padding: 6px 10px !important;
-  text-shadow: 0 0 5px var(--neon-red-glow) !important;
-  box-shadow: none !important;
-}
-
-.mapboxgl-ctrl-directions input:focus {
-  border-bottom-color: var(--neon-cyan) !important;
-  outline: none !important;
-  box-shadow: 0 2px 8px var(--neon-cyan-glow) !important;
-}
-
-.mapbox-directions-component-keyline {
-  box-shadow: none !important;
-  background: transparent !important;
-}
-
-.mapbox-directions-inputs {
-  background: transparent !important;
-}
-
-.mapbox-directions-icon {
-  filter: invert(1) sepia(1) saturate(5) hue-rotate(310deg);
-}
-
-.mapbox-directions-instructions {
-  display: none !important;
-}
-
 .status-dot {
   width: 8px;
   height: 8px;
@@ -409,7 +353,7 @@ body, html {
 <div class="hud-element hud-bottom-left">
   <div style="line-height: 1.5;">
     <div style="font-size: 10px; color: #888; text-shadow: 0 0 4px #000; margin-top: 2px;">SATELLITE LINK: ACTIVE <span style="font-size: 9px; opacity: 0.8;">(12ms)</span></div>
-    <div class="glow-red">ENCRYPTION: <span id="packetCount" style="color: #fff; text-shadow: 0 0 6px #fff;">AES-256-GCM</span></div>
+    <div class="glow-red">ENCRYPTION: <span style="color: #fff; text-shadow: 0 0 6px #fff;">AES-256-GCM</span></div>
     <div class="glow-red">PACKETS TRACED: <span id="packetCount" style="color: #fff; text-shadow: 0 0 6px #fff;">184,920</span></div>
     <div style="font-size: 10px; color: #888; text-shadow: 0 0 4px #000; margin-top: 2px;">HOST: 192.168.0.104 // PORT: 8080</div>
   </div>
@@ -493,74 +437,6 @@ body, html {
             map.setStyle(FALLBACK_STYLE);
         }
     });
-
-    // Directions plugin init
-    let directions;
-    try {
-        directions = new MapboxDirections({
-            accessToken: mapboxgl.accessToken,
-            unit: 'metric',
-            profile: 'mapbox/driving',
-            language: 'ja',
-            controls: {
-                instructions: false
-            }
-        });
-        map.addControl(directions, 'top-left');
-    } catch(e) {
-        console.warn('Directions plugin failed to load:', e);
-    }
-
-    // Route customization logic
-    function applyCustomStyles() {
-        try {
-            if (map.getLayer('directions-route-line-casing')) {
-                map.setPaintProperty('directions-route-line-casing', 'line-width', 0);
-            }
-            if (map.getLayer('directions-route-line-alt-casing')) {
-                map.setPaintProperty('directions-route-line-alt-casing', 'line-width', 0);
-            }
-
-            if (map.getLayer('directions-route-line')) {
-                map.setPaintProperty('directions-route-line', 'line-color', '#ff210c');
-                map.setPaintProperty('directions-route-line', 'line-width', 4);
-            }
-            if (map.getLayer('directions-route-line-alt')) {
-                map.setPaintProperty('directions-route-line-alt', 'line-color', '#00f3ff');
-                map.setPaintProperty('directions-route-line-alt', 'line-width', 3);
-            }
-
-            const pointTextLayers = [
-                'directions-origin-label',
-                'directions-destination-label',
-                'directions-waypoint-label'
-            ];
-            pointTextLayers.forEach(layerId => {
-                if (map.getLayer(layerId)) {
-                    map.setLayoutProperty(layerId, 'text-field', '');
-                }
-            });
-
-            const pointCircleLayers = [
-                'directions-origin-point',
-                'directions-destination-point',
-                'directions-waypoint-point'
-            ];
-            pointCircleLayers.forEach(layerId => {
-                if (map.getLayer(layerId)) {
-                    map.setPaintProperty(layerId, 'circle-radius', 6);
-                    map.setPaintProperty(layerId, 'circle-color', '#ff210c');
-                    map.setPaintProperty(layerId, 'circle-stroke-color', '#ffffff');
-                    map.setPaintProperty(layerId, 'circle-stroke-width', 2);
-                }
-            });
-        } catch (e) {}
-    }
-
-    map.on('style.load', applyCustomStyles);
-    if (directions) {
-        directions.on('route', applyCustomStyles);
-    }
 
     // Dynamic telemetry updates
     function updateTelemetry() {
