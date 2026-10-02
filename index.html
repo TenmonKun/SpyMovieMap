@@ -14,6 +14,10 @@
 <link href="https://api.mapbox.com/mapbox-gl-js/v3.30.0/mapbox-gl.css" rel="stylesheet">
 <script src="https://api.mapbox.com/mapbox-gl-js/v3.30.0/mapbox-gl.js"></script>
 
+<!-- Mapbox GL Directions Plugin -->
+<script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.3.1/mapbox-gl-directions.js"></script>
+<link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.3.1/mapbox-gl-directions.css" type="text/css">
+
 <style>
 :root {
   --neon-red: #ff210c;
@@ -50,11 +54,14 @@ body, html {
   z-index: 1;
 }
 
-/* Mapbox Logo & Attribution Hide */
-.mapboxgl-ctrl-bottom-left,
-.mapboxgl-ctrl-bottom-right,
+/* Hide Mapbox Logo & Attribution (Bottom Left & Bottom Right) */
 .mapboxgl-ctrl-logo,
-.mapboxgl-compact {
+.mapboxgl-ctrl-attrib {
+  display: none !important;
+}
+
+/* Hide Directions UI, keep plugin active */
+.mapboxgl-ctrl-directions {
   display: none !important;
 }
 
@@ -75,7 +82,7 @@ body, html {
   opacity: 0.5;
 }
 
-/* Base Floating HUD Element */
+/* Base Floating HUD Element (No background, no borders, no panels) */
 .hud-element {
   position: absolute;
   z-index: 20;
@@ -437,6 +444,74 @@ body, html {
             map.setStyle(FALLBACK_STYLE);
         }
     });
+
+    // Directions plugin init (JavaScript機能は維持)
+    let directions;
+    try {
+        directions = new MapboxDirections({
+            accessToken: mapboxgl.accessToken,
+            unit: 'metric',
+            profile: 'mapbox/driving',
+            language: 'ja',
+            controls: {
+                instructions: false
+            }
+        });
+        map.addControl(directions, 'top-left');
+    } catch(e) {
+        console.warn('Directions plugin failed to load:', e);
+    }
+
+    // Route customization logic
+    function applyCustomStyles() {
+        try {
+            if (map.getLayer('directions-route-line-casing')) {
+                map.setPaintProperty('directions-route-line-casing', 'line-width', 0);
+            }
+            if (map.getLayer('directions-route-line-alt-casing')) {
+                map.setPaintProperty('directions-route-line-alt-casing', 'line-width', 0);
+            }
+
+            if (map.getLayer('directions-route-line')) {
+                map.setPaintProperty('directions-route-line', 'line-color', '#ff210c');
+                map.setPaintProperty('directions-route-line', 'line-width', 4);
+            }
+            if (map.getLayer('directions-route-line-alt')) {
+                map.setPaintProperty('directions-route-line-alt', 'line-color', '#00f3ff');
+                map.setPaintProperty('directions-route-line-alt', 'line-width', 3);
+            }
+
+            const pointTextLayers = [
+                'directions-origin-label',
+                'directions-destination-label',
+                'directions-waypoint-label'
+            ];
+            pointTextLayers.forEach(layerId => {
+                if (map.getLayer(layerId)) {
+                    map.setLayoutProperty(layerId, 'text-field', '');
+                }
+            });
+
+            const pointCircleLayers = [
+                'directions-origin-point',
+                'directions-destination-point',
+                'directions-waypoint-point'
+            ];
+            pointCircleLayers.forEach(layerId => {
+                if (map.getLayer(layerId)) {
+                    map.setPaintProperty(layerId, 'circle-radius', 6);
+                    map.setPaintProperty(layerId, 'circle-color', '#ff210c');
+                    map.setPaintProperty(layerId, 'circle-stroke-color', '#ffffff');
+                    map.setPaintProperty(layerId, 'circle-stroke-width', 2);
+                }
+            });
+        } catch (e) {}
+    }
+
+    map.on('style.load', applyCustomStyles);
+    if (directions) {
+        directions.on('route', applyCustomStyles);
+    }
 
     // Dynamic telemetry updates
     function updateTelemetry() {
